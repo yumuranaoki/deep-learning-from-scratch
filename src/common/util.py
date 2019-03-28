@@ -22,7 +22,7 @@ def processing(text):
 def create_co_matrix(corpus, word_to_id, window_size=1):
   corpus_size = len(corpus)
   vocab_size = len(word_to_id) 
-  co_matrix = np.zeros((vocab_size, vocab_size), dtype=np.int32)
+  co_matrix = np.zeros((vocab_size, vocab_size), dtype=np.float32)
   for idx, word_id in enumerate(corpus):
     for i in range(1, window_size + 1):
       left_idx = idx - i
@@ -68,6 +68,20 @@ def most_similar(query, word_to_id, id_to_word, co_matrix, top=5):
       break
   
   return rank
+
+# 共起行列を引数にとって、正の相互情報量のmatrixを作成
+# カウントは共起行列ベースで考える
+def create_ppmi_matrix(co_matrix, eps = 1e-8):
+  ppmi_matrix = np.zeros_like(co_matrix, dtype=np.float32)
+  N = np.sum(co_matrix)
+  row_N = np.sum(co_matrix, axis=0)
+  for i in range(len(row_N)):
+    for j in range(len(row_N)):
+      pmi = np.log2(N * co_matrix[i, j] / ((row_N[i] * row_N[j]) + eps))
+      ppmi_matrix = max(0, pmi)
+  return ppmi_matrix
+
+
   
 
 

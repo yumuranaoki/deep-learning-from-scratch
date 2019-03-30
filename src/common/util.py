@@ -80,14 +80,34 @@ def create_ppmi_matrix(co_matrix, eps = 1e-8):
       pmi = np.log2(N * co_matrix[i, j] / ((row_N[i] * row_N[j]) + eps))
       ppmi_matrix = max(0, pmi)
   return ppmi_matrix
+    
+def create_contexts_target(corpus, window_size=1):
+  target = corpus[window_size:-window_size]
+  context = []
+  for i in range(window_size, len(corpus) - window_size):
+    context_row = []
+    for j in range(-window_size, window_size + 1):
+      if j == 0:
+        continue
+      context_row.append(corpus[i+j])
+    context.append(context_row)
 
+  return np.array(context), np.array(target)
 
+def convert_one_hot(corpus, vaocab_size):
+  N = corpus.shape[0]
+  if corpus.ndim == 1:
+    one_hot = np.zeros((N, vaocab_size), dtype=np.int32)
+    for i, word_id in enumerate(corpus):
+      one_hot[i, word_id] = 1
+
+  if corpus.ndim == 2:
+    C = corpus.shape[1]
+    one_hot = np.zeros((N, C, vaocab_size), dtype=np.int32)
+    for i, contexts in enumerate(corpus):
+      for j, word_id in enumerate(contexts):
+        one_hot[i, j, word_id] = 1
   
+  return one_hot
 
 
-
-
-
-
-    
-    
